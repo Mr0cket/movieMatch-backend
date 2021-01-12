@@ -8,6 +8,9 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
+      movieId: {
+        type: Sequelize.INTEGER,
+      },
       title: {
         type: Sequelize.STRING,
         allowNull: false,
@@ -20,7 +23,7 @@ module.exports = {
         type: Sequelize.STRING,
       },
       overview: {
-        type: Sequelize.STRING,
+        type: Sequelize.TEXT,
       },
       releaseDate: {
         type: Sequelize.DATE,
