@@ -4,10 +4,11 @@ const cors = require("cors");
 const corsInstance = cors();
 const httpServer = require("http").createServer(app);
 const logMiddleware = require("morgan");
+const jsonParser = express.json();
 
 // Import Routers
 const authRouter = require("./routers/auth");
-
+const stagedRouter = require("./routers/stagedList");
 const ioOptions = {
   cors: {
     origin: "*",
@@ -21,17 +22,19 @@ io.on("connection", socketHandler);
 
 // Middleware
 app.use(corsInstance);
-app.use(express.json());
+app.use(jsonParser);
 app.use(logMiddleware("dev")); // level of verboseness
 
 // routes
 app.use("/", authRouter);
+app.use("/stagedList", stagedRouter);
 
 // initiate server process
+const internalIp = require("internal-ip").v4.sync();
 const port = process.env.PORT || 4000;
 httpServer.listen(port, () =>
-  console.log(`listening:
+  console.log(`listening on:
 local:  localhost:${port}
-lan:    192.168.1.20:${port}
+lan:    ${internalIp}:${port}
 `)
 );
