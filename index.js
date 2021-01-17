@@ -8,7 +8,7 @@ const jsonParser = express.json();
 
 // Import Routers
 const authRouter = require("./routers/auth");
-const stagedRouter = require("./routers/stagedList");
+const stagingRouter = require("./routers/stagingList");
 const ioOptions = {
   cors: {
     origin: "*",
@@ -27,7 +27,7 @@ app.use(logMiddleware("dev")); // level of verboseness
 
 // routes
 app.use("/", authRouter);
-app.use("/stagedList", stagedRouter);
+app.use("/stagingList", stagingRouter);
 
 // initiate server process
 const internalIp = require("internal-ip").v4.sync();
