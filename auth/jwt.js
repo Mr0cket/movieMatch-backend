@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-
+const User = require("../models").user;
 const { jwtSecret } = require("../config/secrets");
 
 function toJWT(data) {
@@ -10,4 +10,9 @@ function toData(token) {
   return jwt.verify(token, jwtSecret);
 }
 
-module.exports = { toJWT, toData };
+function getUserByToken(token) {
+  const data = toData(token);
+  return User.findByPk(data.userId);
+}
+
+module.exports = { toJWT, toData, getUserByToken };
