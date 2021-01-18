@@ -10,9 +10,9 @@ function toData(token) {
   return jwt.verify(token, jwtSecret);
 }
 
-function getUserByToken(token) {
+function userFromToken(token) {
   const data = toData(token);
   return User.findByPk(data.userId);
 }
 
-module.exports = { toJWT, toData, getUserByToken };
+module.exports = { toJWT, toData, userFromToken };
