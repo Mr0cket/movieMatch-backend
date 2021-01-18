@@ -11,11 +11,18 @@ router.get("/", async (req, res, next) => {
   // get movies from backend
   // where
   // send movies to FrontEnd
+  const { page } = req.query;
+  console.log(`fetching page: ${page}`);
   try {
-    // findAndCountAll({offset: ?, limit: 5})
-    const movies = await Movie.findAndCountAll({ limit: 10 });
+    // where userId doesn't match user &  any other users in the same group have liked the same movie
+
+    // movies where groupId === userId
+
+    //  needs a crazy where statement....
+    const movies = await Movie.findAndCountAll({ offset: page * 10, limit: 10 });
+
     const movieList = movies.rows.map((movie) => movie.dataValues);
-    // console.log(movieList);
+    console.log("first movie", movieList[0]);
     console.log("list length:", movies.rows.length);
     res.send(movieList);
   } catch (e) {
