@@ -6,19 +6,14 @@ const httpServer = require("http").createServer(app);
 const logMiddleware = require("morgan");
 const jsonParser = express.json();
 
-// Import Routers
-const authRouter = require("./routers/auth");
-const stagingRouter = require("./routers/stagingList");
-const partyRouter = require("./routers/party");
-const matchesRouter = require("./routers/matches");
-const ioOptions = {
+// initialise socket.io & configure CORS
+const io = require("socket.io")(httpServer, {
   cors: {
     origin: "*",
   },
-};
-const io = require("socket.io")(httpServer, ioOptions);
+});
 
-// socket handler
+// handle web-socket connections
 const socketHandler = require("./socket");
 io.on("connection", socketHandler);
 
@@ -27,13 +22,19 @@ app.use(corsInstance);
 app.use(jsonParser);
 app.use(logMiddleware("dev")); // level of verboseness
 
-// routes
+// Import Routers
+const authRouter = require("./routers/auth");
+const stagingRouter = require("./routers/stagingList");
+const partyRouter = require("./routers/party");
+const matchesRouter = require("./routers/matches");
+
+// Routes
 app.use("/", authRouter);
 app.use("/stagingList", stagingRouter);
 app.use("/party", partyRouter);
 app.use("/matches", matchesRouter);
 
-// initiate server process
+// execute server process
 const internalIp = require("internal-ip").v4.sync();
 const port = process.env.PORT || 4000;
 httpServer.listen(port, () =>
