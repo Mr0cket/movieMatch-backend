@@ -1,5 +1,6 @@
 const { userFromToken } = require("../auth/jwt");
 const UserMovie = require("../models").userMovie;
+const User = require("../models").user;
 
 // socket handler
 module.exports = function socketHandler(socket) {
@@ -10,15 +11,7 @@ module.exports = function socketHandler(socket) {
       const user = await userFromToken(userToken);
       socket.user = user;
       const { name, partyId } = user;
-      // what if userMovie had a partyId ?? then could just query the partyId of the user to get the movies to show.
 
-      // each party has their own room;
-      // whenever a user in a party likes/dislikes movie,
-      // movie is added to other users staging lists...?
-      // event is emited to all other members of party?
-      // other user clients then get that movie and add it to their staging list?
-      // or, added when they fetch a new list from /staginglist...??
-      // OOOR, just socket.emit an event to the party room with the movie??
       socket.join(partyId);
       console.log(`[socket]user connected: ${name} joined party: ${partyId}`);
     } catch (e) {
@@ -40,7 +33,15 @@ module.exports = function socketHandler(socket) {
       console.log(
         `[socket][${partyId ? "group: " + partyId : ""}]movie ${title} liked by: ${name} `
       );
-      socket.to(partyId).emit("party/movieLiked", movie);
+      const users = await User.findAll({ where: { partyId }, attributes: ["id"] });
+      const userIds = users.map((user) => user.dataValues.id);
+      console.log(userIds);
+      const matches = await UserMovie.findAll({ where: { userId: userIds, movieId } });
+      // There could be a problem here if not implemented correctly.
+      // need to handle:
+      // - match notification already shown
+      if (matches.length > 1) socket.send("party/match", movieId);
+      console.log("[socket]: matches length", matches.length);
     } catch (error) {
       console.log(`[socket]:${error}`);
     }
@@ -51,13 +52,12 @@ module.exports = function socketHandler(socket) {
     // Add movie to staging list of other users (or just do that in the stagingList route...?)
     // Where to check for a movie match?
     /* on match:  
-    - socket.send() */
+    -  */
     if (!socket.user) return; // need to have a user.
     const { name, id: userId, partyId } = socket.user;
     const { id: movieId, title } = movie;
     try {
-      const newUserMovie = await UserMovie.create({ userId, movieId, liked: true });
-      socket.to(partyId).emit("party/movieLiked", movie);
+      const newUserMovie = await UserMovie.create({ userId, movieId, liked: false });
       console.log(
         `[socket][${partyId ? "group: " + partyId : ""}]movie ${movieId} disliked by: ${name}`
       );
