@@ -19,6 +19,9 @@ router.post("/invite", async (req, res, next) => {
     // Further Work needed:
     // send an invite to the selected user
     // if user accepts invite, add to party.
+    // maybe this should happen via sockets?
+    // How to show the invite to the user if he is not currently online?
+    // need some way to record the pending invitation in state/DB...?
     const result = await User.update({ partyId: 1 }, { where: { id: invitedUser.id } });
     console.log(result.dataValues);
     res.send({ message: "ok" });
