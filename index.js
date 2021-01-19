@@ -34,7 +34,7 @@ app.use("/stagingList", stagingRouter);
 app.use("/party", partyRouter);
 app.use("/movies", moviesRouter);
 
-// execute server process
+// Execute server process
 const internalIp = require("internal-ip").v4.sync();
 const port = process.env.PORT || 4000;
 httpServer.listen(port, () =>
