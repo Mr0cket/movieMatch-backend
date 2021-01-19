@@ -2,7 +2,10 @@
 const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class userMovie extends Model {
-    static associate(models) {}
+    static associate(models) {
+      userMovie.belongsTo(models.user);
+      userMovie.belongsTo(models.movie);
+    }
   }
   userMovie.init(
     {
