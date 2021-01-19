@@ -26,13 +26,13 @@ app.use(logMiddleware("dev")); // level of verboseness
 const authRouter = require("./routers/auth");
 const stagingRouter = require("./routers/stagingList");
 const partyRouter = require("./routers/party");
-const matchesRouter = require("./routers/matches");
+const moviesRouter = require("./routers/movies");
 
 // Routes
 app.use("/", authRouter);
 app.use("/stagingList", stagingRouter);
 app.use("/party", partyRouter);
-app.use("/matches", matchesRouter);
+app.use("/movies", moviesRouter);
 
 // execute server process
 const internalIp = require("internal-ip").v4.sync();
