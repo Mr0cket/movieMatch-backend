@@ -7,9 +7,8 @@ const UserMovie = Models.userMovie;
 const Movie = Models.movie;
 
 // GET => /movies/liked (authorised request)
-router.get("/liked", async (req, res, next) => {
-  // const { id: userId, partyId } = req.user;
-  const userId = 1;
+router.get("/liked", auth, async (req, res, next) => {
+  const { id: userId } = req.user;
   // Need to validate fields
   // - check if user is even in a party etc.
   try {
@@ -19,7 +18,6 @@ router.get("/liked", async (req, res, next) => {
         { model: Movie, through: { model: UserMovie, attributes: [], where: { liked: true } } },
       ],
     });
-    console.log("likedMovies", Object.keys(userWithMovies));
     const likedList = userWithMovies.movies.map((movie) => movie.dataValues);
     res.send(likedList);
   } catch (error) {
@@ -37,6 +35,7 @@ router.get("/matches", auth, async (req, res, next) => {
   // const partyId = 1;
   // Need to validate fields
   // - check if user is even in a party etc..
+  if (!partyId) res.send({ message: "user has no party" });
   try {
     const userMovies = await UserMovie.findAll({ where: { userId, liked: true } });
     const movieIds = userMovies.map((userMovie) => userMovie.movieId);
@@ -46,12 +45,12 @@ router.get("/matches", auth, async (req, res, next) => {
       where: { partyId, id: { [Op.ne]: userId } },
     });
     const groupIds = groupUsers.map((user) => user.dataValues.id);
-    console.log("groupIds:", groupIds);
+    // console.log("groupIds:", groupIds);
 
     // get the matches between current user and other users in same party
     const movies = await UserMovie.findAll({ where: { userId: groupIds } });
 
-    console.log("potential matches", movies);
+    // console.log("potential matches", movies);
     const matchIds = movies.map((movie) => movie.movieId);
     const rawMovieList = await Movie.findAll({ where: { id: matchIds } });
 
