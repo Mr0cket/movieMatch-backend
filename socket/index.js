@@ -6,23 +6,28 @@ const User = require("../models").user;
 module.exports = function socketHandler(socket) {
   console.log(`new connection: ${socket.id}`);
 
+  socket.on("disconnect", () =>
+    console.log(`user:${socket.user && socket.user.name} disconnected`)
+  );
+
   socket.on("user/join", async (userToken) => {
+    console.log("user/join event from client");
+    if (socket.user && socket.user.name)
+      return console.log(`[socket]: user (${socket.user.name}) is already connected`);
     try {
       const user = await userFromToken(userToken);
       socket.user = user;
       const { name, partyId } = user;
 
       socket.join(partyId);
-      console.log(`[socket]user connected: ${name} joined party: ${partyId}`);
+      console.log(`[socket]user connected: ${name} in party: ${partyId}`);
     } catch (e) {
       console.log(`[socket] error getting user from DB`);
     }
   });
 
   socket.on("user/likedMovie", async (movie) => {
-    // Add movie to userMovies (liked: true)
-    // Add movie to staging list of other users (or just do that in the stagingList route...?)
-    // Where to check for a movie match?
+    console.log("[socket]: Liked ");
     if (!socket.user) return; // need to have a user.
     const { name, id: userId, partyId } = socket.user;
     const { id: movieId, title } = movie;
@@ -33,14 +38,14 @@ module.exports = function socketHandler(socket) {
       console.log(
         `[socket][${partyId ? "group: " + partyId : ""}]movie ${title} liked by: ${name} `
       );
-      const users = await User.findAll({ where: { partyId }, attributes: ["id"] });
-      const userIds = users.map((user) => user.dataValues.id);
+      const groupUsers = await User.findAll({ where: { partyId }, attributes: ["id"] });
+      const userIds = groupUsers.map((user) => user.dataValues.id);
       console.log(userIds);
       const matches = await UserMovie.findAll({ where: { userId: userIds, movieId } });
       // There could be a problem here if not implemented correctly.
       // need to handle:
       // - match notification already shown
-      if (matches.length > 1) socket.send("party/match", movieId);
+      if (matches.length > 1) socket.send("party/match", movie); // should use only movie ID, but will implement this later.
       console.log("[socket]: matches length", matches.length);
     } catch (error) {
       console.log(`[socket]:${error}`);
