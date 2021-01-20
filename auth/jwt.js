@@ -15,4 +15,12 @@ function userFromToken(token) {
   return User.findByPk(data.userId);
 }
 
-module.exports = { toJWT, toData, userFromToken };
+function partyFromId(partyId) {
+  if (!partyId) return console.log("party id is not defined");
+  return User.findAll({
+    where: { partyId },
+    attributes: ["id", "name", "email", "partyId"],
+  });
+}
+
+module.exports = { toJWT, toData, userFromToken, partyFromId };
