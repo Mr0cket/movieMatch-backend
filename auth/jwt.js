@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models").user;
 const { jwtSecret } = require("../config/secrets");
+const { Op } = require("sequelize");
 
 function toJWT(data) {
   return jwt.sign(data, jwtSecret, { expiresIn: "2h" });
