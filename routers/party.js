@@ -13,24 +13,25 @@ router.get("/", auth, async (req, res, next) => {
   }
 });
 
-router.post("/invite", async (req, res, next) => {
-  // const { partyId } = req.user;
+router.post("/invite", auth, async (req, res, next) => {
+  const { partyId } = req.user;
   const { email } = req.body;
-  if (!email) return res.status(400).send("please send a body");
-  if (typeof email !== "string") return res.statusCode(400).send("invalid email");
+  if (!email) return res.status(400).send({ message: "invalid email" });
   console.log("/invite: email:", email);
   try {
     const invitedUser = await User.findOne({ where: { email } });
 
-    if (!invitedUser)
-      return res.statusCode(400).send({ message: "User with that email not found" });
+    if (!invitedUser) return res.status(400).send({ message: "User with that email not found" });
+    if (invitedUser.partyId === partyId)
+      return res.status(400).send({ message: "user is already in your party" });
     // Further Work needed:
     // send an invite to the selected user
     // if user accepts invite, add to party.
     // maybe this should happen via sockets?
     // How to show the invite to the user if he is not currently online?
     // need some way to record the pending invitation in state/DB...?
-    const result = await invitedUser.update({ partyId: 1 });
+
+    const result = await invitedUser.update({ partyId });
     console.log(result);
     res.send(result.dataValues);
   } catch (error) {
