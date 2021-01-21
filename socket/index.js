@@ -43,8 +43,11 @@ module.exports = function socketHandler(socket) {
       // There could be a problem here if not implemented correctly.
       // need to handle:
       // - match notification already shown
-      if (matches.length > 1) socket.send("party/match", movie); // should use only movie ID, but will implement this later.
-      console.log("[socket]: matches length", matches.length);
+      if (matches.length > 1) {
+        // should use only movie ID, but will implement this later
+        socket.emit("party/match", movie);
+        console.log("[socket]: match emitted to party!", matches.length);
+      } else console.log("[socket]: no movie match");
     } catch (error) {
       console.log(`[socket]likedMovie error:${error}`);
     }
