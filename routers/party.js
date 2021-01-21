@@ -3,10 +3,10 @@ const User = require("../models").user;
 const router = require("express").Router();
 const { partyFromId } = require("../auth/jwt");
 router.get("/", auth, async (req, res, next) => {
-  const { partyId } = req.user;
+  const { id: userId, partyId } = req.user;
   if (!partyId) return res.send({ message: "user has no party" });
   try {
-    const party = await partyFromId(partyId);
+    const party = await partyFromId(partyId, userId);
     res.send(party);
   } catch (e) {
     console.log(e);
@@ -18,8 +18,7 @@ router.post("/invite", async (req, res, next) => {
   const { email } = req.body;
   if (!email) return res.status(400).send("please send a body");
   if (typeof email !== "string") return res.statusCode(400).send("invalid email");
-  console.log("email:", email);
-  console.log("email", email);
+  console.log("/invite: email:", email);
   try {
     const invitedUser = await User.findOne({ where: { email } });
 
@@ -31,8 +30,8 @@ router.post("/invite", async (req, res, next) => {
     // maybe this should happen via sockets?
     // How to show the invite to the user if he is not currently online?
     // need some way to record the pending invitation in state/DB...?
-    const result = await User.update({ partyId: 1 }, { where: { id: invitedUser.id } });
-    console.log(result.dataValues);
+    const result = await invitedUser.update({ partyId: 1 });
+    console.log(result);
     res.send(result.dataValues);
   } catch (error) {
     console.log("thingy:", error);

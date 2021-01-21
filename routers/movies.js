@@ -5,7 +5,7 @@ const Models = require("../models");
 const User = Models.user;
 const UserMovie = Models.userMovie;
 const Movie = Models.movie;
-
+const { partyFromId } = require("../auth/jwt");
 // GET => /movies/liked (authorised request)
 router.get("/liked", auth, async (req, res, next) => {
   const { id: userId } = req.user;
@@ -41,9 +41,7 @@ router.get("/matches", auth, async (req, res, next) => {
     const movieIds = userMovies.map((userMovie) => userMovie.movieId);
 
     // get other users Ids in group
-    const groupUsers = await User.findAll({
-      where: { partyId, id: { [Op.ne]: userId } },
-    });
+    const groupUsers = await partyFromId(partyId, userId);
     const groupIds = groupUsers.map((user) => user.dataValues.id);
     // console.log("groupIds:", groupIds);
 

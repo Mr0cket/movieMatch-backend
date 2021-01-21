@@ -15,10 +15,10 @@ function userFromToken(token) {
   return User.findByPk(data.userId);
 }
 
-function partyFromId(partyId) {
+function partyFromId(partyId, currentUserId) {
   if (!partyId) return console.log("party id is not defined");
   return User.findAll({
-    where: { partyId },
+    where: { partyId, id: { [Op.ne]: currentUserId } },
     attributes: ["id", "name", "email", "partyId"],
   });
 }

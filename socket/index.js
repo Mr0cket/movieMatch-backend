@@ -23,7 +23,7 @@ module.exports = function socketHandler(socket) {
       socket.join(partyId);
       console.log(`[socket]user connected: ${name} in party: ${partyId}`);
     } catch (e) {
-      console.log(`[socket] error getting user from DB`);
+      console.log(`[socket] DBerror: ${e}`);
     }
   });
 
@@ -31,7 +31,6 @@ module.exports = function socketHandler(socket) {
     if (!socket.user) return console.log("[socket]: liked movie, No user attached.");
     const { name, id: userId, partyId } = socket.user;
     const { id: movieId, title } = movie;
-
     try {
       // create new association
       const newUserMovie = await UserMovie.create({ userId, movieId, liked: true });
@@ -40,7 +39,6 @@ module.exports = function socketHandler(socket) {
       );
       const groupUsers = await User.findAll({ where: { partyId }, attributes: ["id"] });
       const userIds = groupUsers.map((user) => user.dataValues.id);
-      console.log(userIds);
       const matches = await UserMovie.findAll({ where: { userId: userIds, movieId } });
       // There could be a problem here if not implemented correctly.
       // need to handle:
@@ -48,7 +46,7 @@ module.exports = function socketHandler(socket) {
       if (matches.length > 1) socket.send("party/match", movie); // should use only movie ID, but will implement this later.
       console.log("[socket]: matches length", matches.length);
     } catch (error) {
-      console.log(`[socket]:${error}`);
+      console.log(`[socket]likedMovie error:${error}`);
     }
   });
 
@@ -57,7 +55,8 @@ module.exports = function socketHandler(socket) {
     // Add movie to staging list of other users (or just do that in the stagingList route...?)
     // Where to check for a movie match?
     /* on match:  
-    -  */
+    - 
+    */
     if (!socket.user) return; // need to have a user.
     const { name, id: userId, partyId } = socket.user;
     const { id: movieId, title } = movie;

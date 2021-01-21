@@ -27,9 +27,9 @@ router.post("/login", async (req, res, next) => {
     delete user.dataValues["password"]; // don't send back the password hash
     const token = toJWT({ userId: user.id });
     if (!user.partyId) return res.send({ ...user.dataValues, token });
-    const rawResult = await partyFromId(user.partyId);
-    const party = rawResult ? rawResult.map((user) => user.dataValues) : [];
-    res.status(200).send({ ...user.dataValues, party: party, token });
+    const rawResult = await partyFromId(user.partyId, user.id);
+    const partyUsers = rawResult ? rawResult.map((user) => user.dataValues) : [];
+    res.status(200).send({ ...user.dataValues, party: partyUsers, token });
   } catch (error) {
     console.log(error);
     return res.status(400).send({ message: "Something went wrong, sorry" });
@@ -69,9 +69,10 @@ router.post("/signup", async (req, res) => {
 router.get("/me", authMiddleware, async (req, res) => {
   // check if account is blocked. if so, return a 401 status. should get the thunk to delete the stored token
   // don't send back the password hash
+  const { id: userId, partyId } = req.user;
   delete req.user["password"];
   if (!req.user.partyId) return res.send(req.user);
-  const rawResult = await partyFromId(req.user.partyId);
+  const rawResult = await partyFromId(partyId, userId);
   const party = rawResult ? rawResult.map((user) => user.dataValues) : [];
   res.status(200).send({ ...req.user, party: party });
 });
