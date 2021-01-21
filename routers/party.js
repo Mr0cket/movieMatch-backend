@@ -1,8 +1,17 @@
 const auth = require("../auth/middleware");
 const User = require("../models").user;
 const router = require("express").Router();
-
-router.get("/", auth, async (req, res, next) => {});
+const { partyFromId } = require("../auth/jwt");
+router.get("/", auth, async (req, res, next) => {
+  const { partyId } = req.user;
+  if (!partyId) return res.send({ message: "user has no party" });
+  try {
+    const party = await partyFromId(partyId);
+    res.send(party);
+  } catch (e) {
+    console.log(e);
+  }
+});
 
 router.post("/invite", async (req, res, next) => {
   // const { partyId } = req.user;
@@ -24,7 +33,7 @@ router.post("/invite", async (req, res, next) => {
     // need some way to record the pending invitation in state/DB...?
     const result = await User.update({ partyId: 1 }, { where: { id: invitedUser.id } });
     console.log(result.dataValues);
-    res.send({ message: "ok" });
+    res.send(result.dataValues);
   } catch (error) {
     console.log("thingy:", error);
     next(error);
