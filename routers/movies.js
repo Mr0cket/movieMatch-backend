@@ -35,7 +35,7 @@ router.get("/matches", auth, async (req, res, next) => {
   // const partyId = 1;
   // Need to validate fields
   // - check if user is even in a party etc..
-  if (!partyId) res.send({ message: "user has no party" });
+  if (!partyId) return res.send({ message: "user has no party" });
   try {
     const userMovies = await UserMovie.findAll({ where: { userId, liked: true } });
     const movieIds = userMovies.map((userMovie) => userMovie.movieId);
