@@ -4,7 +4,7 @@ const { toJWT, partyFromId } = require("../auth/jwt");
 const authMiddleware = require("../auth/middleware");
 const User = require("../models").user;
 const { SALT_ROUNDS } = require("../config/constants");
-
+const Party = require("../models").party;
 const router = new Router();
 
 router.post("/login", async (req, res, next) => {
@@ -48,6 +48,11 @@ router.post("/signup", async (req, res) => {
       password: bcrypt.hashSync(password, SALT_ROUNDS),
       name,
     });
+    // create user party
+    const userParty = await Party.create({ name: `${name}'s party` });
+
+    // assign the user to the party
+    const userWithParty = await newUser.update({ partyId: userParty.id });
 
     delete newUser.dataValues["password"]; // don't send back the password hash
 
