@@ -14,6 +14,7 @@ module.exports = function socketHandler(socket) {
     console.log("user/join event from client");
     if (socket.user && socket.user.name)
       return console.log(`[socket]: user (${socket.user.name}) is already connected`);
+    if (!userToken) return console.log(`[socket] no user token to authenticate session`);
     try {
       const user = await userFromToken(userToken);
       socket.user = user;
@@ -27,8 +28,7 @@ module.exports = function socketHandler(socket) {
   });
 
   socket.on("user/likedMovie", async (movie) => {
-    console.log("[socket]: Liked ");
-    if (!socket.user) return; // need to have a user.
+    if (!socket.user) return console.log("[socket]: liked movie, No user attached.");
     const { name, id: userId, partyId } = socket.user;
     const { id: movieId, title } = movie;
 
