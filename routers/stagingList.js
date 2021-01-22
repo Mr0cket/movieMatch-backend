@@ -7,7 +7,6 @@ const UserMovie = Models.userMovie;
 const { Op } = require("sequelize");
 
 // GET /stagedList - Returns a staged list of 10 movies to show to the user.
-// user must not have previously interacted with the movies.
 router.get("/", auth, async (req, res, next) => {
   const { id: userId, partyId } = req.user;
   try {
@@ -43,7 +42,6 @@ router.get("/", auth, async (req, res, next) => {
     console.log("movies liked by group:", finalList.length);
 
     // ideally, should never have more than half the movies from other people's likes.
-
     if (finalList.length < 10) {
       // add new movies to the list to increase the length to 10.
       const amount = 10 - finalList.length;
@@ -74,21 +72,4 @@ function shuffle(arr) {
   return array;
 }
 
-// static staging list implementation (backup)
-/* router.get("/", auth, async (req, res, next) => {
-  const { page } = req.query;
-  console.log(`fetching page: ${page}`);
-  const { id: userId, partyId } = req.user;
-  try {
-    const movieList = await Movie.findAll({ limit: 20 });
-
-    console.log("first movie", movieList[0]);
-    console.log("list length:", movieList.length);
-    res.send(movieList);
-  } catch (error) {
-    console.log(`[stagingList]: ${error}`);
-    next(error);
-  }
-});
- */
 module.exports = router;
