@@ -42,4 +42,4 @@ const io = require("socket.io")(httpServer, {
 
 // handle web-socket connections
 const socketHandler = require("./socket");
-io.on("connection", socketHandler);
+io.on("connection", (socket) => socketHandler(socket, io));

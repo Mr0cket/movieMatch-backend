@@ -3,18 +3,26 @@ const UserMovie = require("../models").userMovie;
 const User = require("../models").user;
 
 // socket handler
-module.exports = function socketHandler(socket) {
+module.exports = function socketHandler(socket, io) {
   console.log(`new connection: ${socket.id}`);
 
+  // error handling/listeners
   socket.on("disconnect", () =>
-    console.log(`user:${socket.user && socket.user.name} disconnected`)
+    console.log(`[socket]: ${socket.user && socket.user.name} disconnected`)
   );
+  socket.on("connect_failed", () =>
+    console.log(`[socket]: connection failed with: ${socket.user && socket.user.name}`)
+  );
+  socket.on("reconnect", () =>
+    console.log(`[socket]: reconnected to client: ${socket.user && socket.user.name}`)
+  );
+  socket.on("error", () => console.log(`[socket]: error: ${socket.user && socket.user.name}`));
 
   socket.on("user/join", async (userToken) => {
-    console.log("user/join event from client");
+    console.log("[socket]: user/join event from client");
     if (socket.user && socket.user.name)
       return console.log(`[socket]: user (${socket.user.name}) is already connected`);
-    if (!userToken) return console.log(`[socket] no user token to authenticate session`);
+    if (!userToken) return console.log(`[socket]: no user token to authenticate session`);
     try {
       const user = await userFromToken(userToken);
       socket.user = user;
@@ -37,6 +45,7 @@ module.exports = function socketHandler(socket) {
       console.log(
         `[socket][${partyId ? "group: " + partyId : ""}]movie ${title} liked by: ${name} `
       );
+      // check if there is a match
       const groupUsers = await User.findAll({ where: { partyId }, attributes: ["id"] });
       const userIds = groupUsers.map((user) => user.dataValues.id);
       const matches = await UserMovie.findAll({ where: { userId: userIds, movieId } });
@@ -45,7 +54,7 @@ module.exports = function socketHandler(socket) {
       // - match notification already shown
       if (matches.length > 1) {
         // should use only movie ID, but will implement this later
-        socket.emit("party/match", movie);
+        io.in(partyId).emit("party/match", movie);
         console.log("[socket]: match emitted to party!", matches.length);
       } else console.log("[socket]: no movie match");
     } catch (error) {
