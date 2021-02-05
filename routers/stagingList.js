@@ -42,7 +42,8 @@ router.get("/", auth, async (req, res, next) => {
     console.log("movies liked by group:", finalList.length);
 
     // ideally, should never have more than 4 movies from other people's likes.
-    finalList.length = 4;
+
+    if (finalList.length > 4) finalList.length = 4;
 
     if (finalList.length < 10) {
       // add new movies to the list to increase the length to 10.
