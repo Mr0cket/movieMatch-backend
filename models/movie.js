@@ -16,6 +16,7 @@ module.exports = (sequelize, DataTypes) => {
       mainGenre: DataTypes.STRING,
       overview: DataTypes.TEXT,
       posterUrl: DataTypes.STRING,
+      backdropUrl: DataTypes.STRING,
       releaseDate: DataTypes.DATE,
       rating: DataTypes.FLOAT,
       popularity: DataTypes.FLOAT,

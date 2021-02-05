@@ -17,12 +17,14 @@ module.exports = {
             title,
             overview,
             poster_path,
+            backdrop_path,
             release_date: releaseDate,
             vote_average: rating,
             genre_ids,
             popularity,
           } = movie;
           const posterUrl = "https://image.tmdb.org/t/p/w500" + poster_path;
+          const backdropUrl = "https://image.tmdb.org/t/p/w500" + backdrop_path;
           const genresMapped =
             genre_ids && genre_ids.length > 0 ? genre_ids.map((id) => genres[id].name) : ["Idunno"];
           const mainGenre = genresMapped.join(",");
@@ -34,6 +36,7 @@ module.exports = {
               mainGenre,
               overview,
               posterUrl,
+              backdropUrl,
               releaseDate,
               rating,
               popularity,

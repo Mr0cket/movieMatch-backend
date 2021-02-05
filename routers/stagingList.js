@@ -41,7 +41,7 @@ router.get("/", auth, async (req, res, next) => {
     const finalList = GroupLikedList.filter((movie) => !userMovieIdList.includes(movie.id));
     console.log("movies liked by group:", finalList.length);
 
-    // ideally, should never have more than 4  movies from other people's likes.
+    // ideally, should never have more than 4 movies from other people's likes.
     finalList.length = 4;
 
     if (finalList.length < 10) {

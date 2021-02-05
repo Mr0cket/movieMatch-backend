@@ -19,6 +19,10 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
+      backdropUrl: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
       mainGenre: {
         type: Sequelize.STRING,
       },
