@@ -29,33 +29,23 @@ module.exports = {
             genre_ids && genre_ids.length > 0 ? genre_ids.map((id) => genres[id].name) : ["Idunno"];
           const mainGenre = genresMapped.join(",");
 
-          if (releaseDate)
-            return {
-              movieId,
-              title,
-              mainGenre,
-              overview,
-              posterUrl,
-              backdropUrl,
-              releaseDate,
-              rating,
-              popularity,
-              createdAt: new Date(),
-              updatedAt: new Date(),
-            };
-          else
-            return {
-              movieId,
-              title,
-              overview,
-              posterUrl,
-              rating,
-              createdAt: new Date(),
-              updatedAt: new Date(),
-            };
+          return {
+            movieId,
+            title,
+            mainGenre,
+            overview,
+            posterUrl,
+            backdropUrl,
+            releaseDate,
+            rating,
+            popularity,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          };
         });
         combinedPagesList = [...combinedPagesList, ...parsedList];
       }
+      const finalList = combinedPagesList.filter((movie) => movie.releaseDate);
       await queryInterface.bulkInsert("movies", combinedPagesList);
     } catch (e) {
       console.log(e.message);
