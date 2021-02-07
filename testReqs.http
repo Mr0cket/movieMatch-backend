@@ -8,3 +8,7 @@ GET https://api.themoviedb.org/3/genre/movie/list?api_key=eb066629e9e5aca99797f3
 
 ### Streaming services (and stuff)
 GET https://api.themoviedb.org/3/movie/464052/watch/providers?api_key=eb066629e9e5aca99797f3955400c4bd
+
+
+### api configuration
+GET https://api.themoviedb.org/3/configuration?api_key=eb066629e9e5aca99797f3955400c4bd
