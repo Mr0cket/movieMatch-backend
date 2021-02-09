@@ -36,7 +36,7 @@ module.exports = {
             overview,
             posterUrl,
             backdropUrl,
-            releaseDate,
+            releaseDate: releaseDate || null,
             rating,
             popularity,
             createdAt: new Date(),
