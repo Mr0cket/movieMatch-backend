@@ -1,4 +1,5 @@
 const auth = require("../auth/middleware");
+const { Op } = require("sequelize");
 const User = require("../models").user;
 const router = require("express").Router();
 const { partyFromId } = require("../auth/jwt");
@@ -10,6 +11,28 @@ router.get("/", auth, async (req, res, next) => {
     res.send(party);
   } catch (e) {
     console.log(e);
+  }
+});
+router.get("/usersearch", async (req, res, next) => {
+  const { searchString } = req.query;
+
+  try {
+    // this query is kinda scary
+    // should refine this, but need better understanding of how to implement these queries
+    const userMatches = await User.findAll({
+      attributes: ["id", "name", "email", "partyId"],
+      limit: 5,
+      where: {
+        [Op.or]: [
+          { email: { [Op.iLike]: `${searchString}%` } },
+          { name: { [Op.iLike]: `%${searchString}%` } },
+        ],
+      },
+    });
+    res.send(userMatches.map((user) => user.get({ plain: true })));
+  } catch (e) {
+    console.log(e.message);
+    next(e);
   }
 });
 
