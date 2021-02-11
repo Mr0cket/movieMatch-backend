@@ -13,14 +13,15 @@ router.get("/", auth, async (req, res, next) => {
     console.log(e);
   }
 });
-router.get("/userSearch", async (req, res, next) => {
-  const searchString = req.query.query;
+router.get("/usersearch", async (req, res, next) => {
+  const { searchString } = req.query;
 
   try {
     // this query is kinda scary
     // should refine this, but need better understanding of how to implement these queries
     const userMatches = await User.findAll({
       attributes: ["id", "name", "email", "partyId"],
+      limit: 5,
       where: {
         [Op.or]: [
           { email: { [Op.iLike]: `${searchString}%` } },
