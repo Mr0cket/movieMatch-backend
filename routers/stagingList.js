@@ -6,6 +6,8 @@ const User = Models.user;
 const UserMovie = Models.userMovie;
 const { Op } = require("sequelize");
 
+const listLimit = 10;
+
 // GET /stagedList - Returns a staged list of 10 movies to show to the user.
 router.get("/", auth, async (req, res, next) => {
   const { id: userId, partyId } = req.user;
@@ -43,11 +45,11 @@ router.get("/", auth, async (req, res, next) => {
 
     // ideally, should never have more than 4 movies from other people's likes.
 
-    if (finalList.length > 4) finalList.length = 4;
+    finalList.length = Math.min(finalList.length, 4);
 
-    if (finalList.length < 10) {
+    if (finalList.length < listLimit) {
       // add new movies to the list to increase the length to 10.
-      const amount = 10 - finalList.length;
+      const amount = listLimit - finalList.length;
       const extraItems = await Movie.findAll({
         limit: amount,
         where: { id: { [Op.notIn]: userMovieIdList } },
@@ -57,7 +59,6 @@ router.get("/", auth, async (req, res, next) => {
     }
     console.log("final list length:", finalList.length); // should be 10
     const shuffled = shuffle(finalList);
-    // console.log("first movie:", shuffled[0].title);
     res.send(shuffled);
   } catch (error) {
     console.log(`[stagingList]: ${error}`);

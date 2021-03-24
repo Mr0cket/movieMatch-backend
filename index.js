@@ -2,7 +2,6 @@ const express = require("express");
 const app = express();
 const cors = require("cors");
 const corsInstance = cors();
-// const httpServer = require("http").createServer(app);
 const logMiddleware = require("morgan");
 const jsonParser = express.json();
 
