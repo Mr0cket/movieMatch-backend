@@ -6,11 +6,13 @@ const User = Models.user;
 const UserMovie = Models.userMovie;
 const { Op } = require("sequelize");
 
-const listLimit = 10;
+const defaultListSize = 6;
 
 // GET /stagedList - Returns a staged list of 10 movies to show to the user.
 router.get("/", auth, async (req, res, next) => {
   const { id: userId, partyId } = req.user;
+  const isfirstPage = Boolean(req.query.first);
+  const listLimit = req.query.size || defaultListSize;
   try {
     // get all group movies
     const groupMovies = await User.findAll({
@@ -40,23 +42,25 @@ router.get("/", auth, async (req, res, next) => {
       .map((movie) => movie.dataValues);
 
     // filter for movies the current user hasn't previously interacted with
-    const finalList = GroupLikedList.filter((movie) => !userMovieIdList.includes(movie.id));
+    let finalList = GroupLikedList.filter((movie) => !userMovieIdList.includes(movie.id));
     console.log("movies liked by group:", finalList.length);
 
-    // ideally, should never have more than 4 movies from other people's likes.
+    // ideally, should never have more than 1/3 movies from other people's likes.
+    // If it isn't the first page, paginate the list.
+    const groupLikedLimit = Math.floor(listLimit / 3);
+    if (isfirstPage) finalList.length = Math.min(finalList.length, groupLikedLimit);
+    else
+      finalList = finalList.slice(listLimit / 3, Math.min(finalList.length, groupLikedLimit * 2));
 
-    finalList.length = Math.min(finalList.length, 4);
-
-    if (finalList.length < listLimit) {
-      // add new movies to the list to increase the length to 10.
-      const amount = listLimit - finalList.length;
-      const extraItems = await Movie.findAll({
-        limit: amount,
-        where: { id: { [Op.notIn]: userMovieIdList } },
-      });
-      console.log("extraItems", extraItems.length);
-      finalList.push(...extraItems.map((item) => item.dataValues));
-    }
+    // add new movies to the list to increase the length to listLimit.
+    const amount = listLimit - finalList.length;
+    const extraItems = await Movie.findAll({
+      limit: amount,
+      where: { id: { [Op.notIn]: userMovieIdList } },
+      offset: isfirstPage ? 0 : Math.floor((listLimit * 2) / 3),
+    });
+    console.log("extraItems", extraItems.length);
+    finalList.push(...extraItems.map((item) => item.dataValues));
     console.log("final list length:", finalList.length); // should be 10
     const shuffled = shuffle(finalList);
     res.send(shuffled);
